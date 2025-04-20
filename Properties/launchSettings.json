@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ezvote": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
