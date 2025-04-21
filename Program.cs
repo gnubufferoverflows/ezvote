@@ -332,8 +332,8 @@ public class Program {
             var commandPoll = createPollCommand.WithName("newpoll")
                 .WithDescription("Create a new poll")
                 .AddOption("title", ApplicationCommandOptionType.String, description: "Short description of poll", isRequired: true, maxLength: 250)
-                .AddOption("description", ApplicationCommandOptionType.String, description: "Long description of poll", isRequired: true, minLength: 10, maxLength: 2000)
-                .AddOption("options", ApplicationCommandOptionType.String, description: "Comma separated options list", isRequired: true, minLength: 5, maxLength: 300)
+                .AddOption("description", ApplicationCommandOptionType.String, description: "Long description of poll", isRequired: true, minLength: 5, maxLength: 2000)
+                .AddOption("options", ApplicationCommandOptionType.String, description: "Comma separated options list", isRequired: true, minLength: 1, maxLength: 300)
                 .AddOption("allowabstain", ApplicationCommandOptionType.Boolean, description: "Would you like to automatically add an option to abstain?", isRequired: true)
                 .AddOption("threshold", ApplicationCommandOptionType.Number, description: "Specify 1-100 the percentage that the highest performing option needs to pass.", minValue: 1, maxValue: 100, isRequired: true)
                 .AddOption("channel", ApplicationCommandOptionType.Channel, description: "What channel to post this poll in?", isRequired: true).Build();
