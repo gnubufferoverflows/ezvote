@@ -64,7 +64,7 @@ public class Program {
             Modal m = new ModalBuilder()
                 .WithTitle("Vote Explanation")
                 .WithCustomId(EZPOLL_PREFIX_MODAL + idSelected + "_" + strpollid)
-                .AddTextInput(new TextInputBuilder().WithLabel("Explanation").WithCustomId("explanation").WithMinLength(20).WithMaxLength(255).WithRequired(true).WithStyle(TextInputStyle.Paragraph))
+                .AddTextInput(new TextInputBuilder().WithLabel("Explanation").WithCustomId("explanation").WithMinLength(5).WithMaxLength(255).WithRequired(true).WithStyle(TextInputStyle.Paragraph))
                 .Build();
             await smc.RespondWithModalAsync(m);
         }
@@ -260,7 +260,7 @@ public class Program {
                 await command.RespondAsync(embed: QuickEmbeds.Error("Too many options"), ephemeral: true);
                 return;
             }
-            if(optionsReal.Where(s => s.Length > 30).ToImmutableArray().Length > 0)
+            if(optionsReal.Where(s => s.Length > 30 || s.Length < 2).ToImmutableArray().Length > 0)
             {
                 await command.RespondAsync(embed: QuickEmbeds.Error("One of your poll options is too large. Please make it 30 characters or less."), ephemeral: true);
                 return;
@@ -332,8 +332,8 @@ public class Program {
             var commandPoll = createPollCommand.WithName("newpoll")
                 .WithDescription("Create a new poll")
                 .AddOption("title", ApplicationCommandOptionType.String, description: "Short description of poll", isRequired: true, maxLength: 250)
-                .AddOption("description", ApplicationCommandOptionType.String, description: "Long description of poll", isRequired: true, minLength: 25, maxLength: 2000)
-                .AddOption("options", ApplicationCommandOptionType.String, description: "Comma separated options list", isRequired: true, minLength: 10, maxLength: 300)
+                .AddOption("description", ApplicationCommandOptionType.String, description: "Long description of poll", isRequired: true, minLength: 10, maxLength: 2000)
+                .AddOption("options", ApplicationCommandOptionType.String, description: "Comma separated options list", isRequired: true, minLength: 5, maxLength: 300)
                 .AddOption("allowabstain", ApplicationCommandOptionType.Boolean, description: "Would you like to automatically add an option to abstain?", isRequired: true)
                 .AddOption("threshold", ApplicationCommandOptionType.Number, description: "Specify 1-100 the percentage that the highest performing option needs to pass.", minValue: 1, maxValue: 100, isRequired: true)
                 .AddOption("channel", ApplicationCommandOptionType.Channel, description: "What channel to post this poll in?", isRequired: true).Build();
