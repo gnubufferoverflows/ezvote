@@ -260,7 +260,7 @@ public class Program {
                 await command.RespondAsync(embed: QuickEmbeds.Error("Too many options"), ephemeral: true);
                 return;
             }
-            if(optionsReal.Where(s => s.Length > 30 || s.Length < 2).ToImmutableArray().Length > 0)
+            if(optionsReal.Where(s => s.Length > 30 || s.Length < 1).ToImmutableArray().Length > 0)
             {
                 await command.RespondAsync(embed: QuickEmbeds.Error("One of your poll options is too large. Please make it 30 characters or less."), ephemeral: true);
                 return;
