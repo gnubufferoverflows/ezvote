@@ -304,7 +304,7 @@ public class Program {
     {
         try
         {
-            File.ReadAllText("/data/config.yml");
+            File.ReadAllText("/app/data/config.yml");
         }
         catch(Exception ex)
         {
