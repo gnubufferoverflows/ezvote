@@ -48,7 +48,7 @@ namespace ezvote
         //loads config, forcing the cache to update
         public static BotConfig LoadConfig()
         {
-            string fileContents = File.ReadAllText("/data/config.yml");
+            string fileContents = File.ReadAllText("/app/data/config.yml");
             var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
@@ -63,7 +63,7 @@ namespace ezvote
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
             var yml = serializer.Serialize(cfg);
-            File.WriteAllText("config.yml", yml);
+            File.WriteAllText("/app/data/config.yml", yml);
             LoadConfig(); // update the cache
         }
 
