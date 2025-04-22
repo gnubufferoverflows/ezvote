@@ -338,10 +338,12 @@ public class Program {
             var textChan = channel as SocketTextChannel;
             BotConfig.GetCachedConfig().PollData.Add(guid, p);
             BotConfig.SaveConfig(BotConfig.GetCachedConfig());
-            await textChan.SendMessageAsync(embed: pembed, components: comps.Build());
+            var newMsg = await textChan.SendMessageAsync(embed: pembed, components: comps.Build());
+            var newChan = _client.GetChannel(newMsg.Channel.Id) as SocketTextChannel;
+            await newChan.CreateThreadAsync($"Discussion: {title}", message: newMsg);
             await command.RespondAsync(embed: QuickEmbeds.Success("Poll Created", "Your poll has been created"), ephemeral: true);
                 
-
+            
             
         }
     }
