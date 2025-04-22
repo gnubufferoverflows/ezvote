@@ -379,7 +379,7 @@ public class Program {
         {
             await ResetCommands();
         }
-        await _client.SetGameAsync("to your votes", type: ActivityType.Listening);
+        await _client.SetGameAsync("your votes", type: ActivityType.Listening);
     }
 
     private static async Task Log(LogMessage message)
