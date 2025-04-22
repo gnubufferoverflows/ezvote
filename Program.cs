@@ -228,6 +228,18 @@ public class Program {
             }
             
         }
+        if(command.CommandName == "resetcommands")
+        {
+            if(command.User.Id == 164890197237039104)
+            {
+                await ResetCommands();
+                await command.RespondAsync(embed: QuickEmbeds.Success());
+            }
+            else
+            {
+                await command.RespondAsync(embed: QuickEmbeds.PermissionError(), ephemeral: true);
+            }
+        }
         if(command.CommandName == "newpoll")
         {
             var optionsRaw = (string) command.Data.Options.Where(option => option.Name == "options").FirstOrDefault().Value;
@@ -300,6 +312,41 @@ public class Program {
         }
     }
 
+    private static async Task ResetCommands()
+    {
+        var listVotersCommand = new SlashCommandBuilder()
+               .WithName("listvoters")
+               .WithDescription("List the voters for a poll")
+               .AddOption("pollid", ApplicationCommandOptionType.String, description: "Which poll?", isRequired: true)
+               .Build();
+        var explainVoteCommand = new SlashCommandBuilder()
+            .WithName("explainvote")
+            .WithDescription("Show a voter's explanations")
+            .AddOption("pollid", ApplicationCommandOptionType.String, description: "Which poll?", isRequired: true)
+            .AddOption("user", ApplicationCommandOptionType.User, description: "Who", isRequired: true)
+            .Build();
+        var resetCommandsCommand = new SlashCommandBuilder()
+            .WithName("resetcommands")
+            .WithDescription("Debugging command")
+            .Build();
+        var createPollCommand = new SlashCommandBuilder();
+        var commandPoll = createPollCommand.WithName("newpoll")
+            .WithDescription("Create a new poll")
+            .AddOption("title", ApplicationCommandOptionType.String, description: "Short description of poll", isRequired: true, maxLength: 250)
+            .AddOption("description", ApplicationCommandOptionType.String, description: "Long description of poll", isRequired: true, minLength: 5, maxLength: 2000)
+            .AddOption("options", ApplicationCommandOptionType.String, description: "Comma separated options list", isRequired: true, minLength: 1, maxLength: 300)
+            .AddOption("allowabstain", ApplicationCommandOptionType.Boolean, description: "Would you like to automatically add an option to abstain?", isRequired: true)
+            .AddOption("threshold", ApplicationCommandOptionType.Number, description: "Specify 1-100 the percentage that the highest performing option needs to pass.", minValue: 1, maxValue: 100, isRequired: true)
+            .AddOption("channel", ApplicationCommandOptionType.Channel, description: "What channel to post this poll in?", isRequired: true).Build();
+
+        await _client.CreateGlobalApplicationCommandAsync(commandPoll);
+        await _client.CreateGlobalApplicationCommandAsync(listVotersCommand);
+        await _client.CreateGlobalApplicationCommandAsync(explainVoteCommand);
+        await _client.CreateGlobalApplicationCommandAsync(resetCommandsCommand);
+        BotConfig.GetCachedConfig().CommandsCreated = true;
+        BotConfig.SaveConfig(BotConfig.GetCachedConfig());
+    }
+
     private static async Task RunReady()
     {
         try
@@ -317,32 +364,7 @@ public class Program {
         
         if (!BotConfig.GetCachedConfig().CommandsCreated)
         {
-            var listVotersCommand = new SlashCommandBuilder()
-                .WithName("listvoters")
-                .WithDescription("List the voters for a poll")
-                .AddOption("pollid", ApplicationCommandOptionType.String, description: "Which poll?", isRequired: true)
-                .Build();
-            var explainVoteCommand = new SlashCommandBuilder()
-                .WithName("explainvote")
-                .WithDescription("Show a voter's explanations")
-                .AddOption("pollid", ApplicationCommandOptionType.String, description: "Which poll?", isRequired: true)
-                .AddOption("user", ApplicationCommandOptionType.User, description: "Who", isRequired: true)
-                .Build();
-            var createPollCommand = new SlashCommandBuilder();
-            var commandPoll = createPollCommand.WithName("newpoll")
-                .WithDescription("Create a new poll")
-                .AddOption("title", ApplicationCommandOptionType.String, description: "Short description of poll", isRequired: true, maxLength: 250)
-                .AddOption("description", ApplicationCommandOptionType.String, description: "Long description of poll", isRequired: true, minLength: 5, maxLength: 2000)
-                .AddOption("options", ApplicationCommandOptionType.String, description: "Comma separated options list", isRequired: true, minLength: 1, maxLength: 300)
-                .AddOption("allowabstain", ApplicationCommandOptionType.Boolean, description: "Would you like to automatically add an option to abstain?", isRequired: true)
-                .AddOption("threshold", ApplicationCommandOptionType.Number, description: "Specify 1-100 the percentage that the highest performing option needs to pass.", minValue: 1, maxValue: 100, isRequired: true)
-                .AddOption("channel", ApplicationCommandOptionType.Channel, description: "What channel to post this poll in?", isRequired: true).Build();
-
-            await _client.CreateGlobalApplicationCommandAsync(commandPoll);
-            await _client.CreateGlobalApplicationCommandAsync(listVotersCommand);
-            await _client.CreateGlobalApplicationCommandAsync(explainVoteCommand);
-            BotConfig.GetCachedConfig().CommandsCreated = true;
-            BotConfig.SaveConfig(BotConfig.GetCachedConfig());
+            await ResetCommands();
         }
     }
 
