@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Discord;
+using Discord.Interactions.Builders;
 using Discord.WebSocket;
 using ezvote;
 
@@ -23,6 +24,7 @@ public class Program {
         _client.Ready += RunReady;
         _client.SlashCommandExecuted += SlashCommandHandler;
         _client.ButtonExecuted += ButtonExecuted;
+        _client.MessageCommandExecuted += MessageCommandHandler;
 
         _client.ModalSubmitted += ModalSubmitted;
         
@@ -31,6 +33,25 @@ public class Program {
 
     }
 
+    private static async Task MessageCommandHandler(SocketMessageCommand smc)
+    {
+        if (smc.CommandName == "Copy Poll ID")
+        {
+            if (
+                smc.Data.Message.Author.Id == _client.CurrentUser.Id &&
+                smc.Data.Message.Embeds.Count > 0 &&
+                smc.Data.Message.Embeds.FirstOrDefault().Footer != null &&
+                smc.Data.Message.Embeds.FirstOrDefault().Footer.Value.Text.StartsWith(EZPOLL_POLLID_PREFIX)
+                )
+            {
+                await smc.RespondAsync(smc.Data.Message.Embeds.FirstOrDefault().Footer.Value.Text.Split(EZPOLL_POLLID_PREFIX)[1], ephemeral: true);
+            }
+            else
+            {
+                await smc.RespondAsync(embed: QuickEmbeds.Error("This feature can only be used on Ezpoll polls."), ephemeral: true);
+            }
+        }
+    }
 
     private static async Task ModalSubmitted(SocketModal smc)
     {
@@ -61,7 +82,7 @@ public class Program {
                 return;
             }
             string idSelected = smc.Data.CustomId.Split(EZPOLL_PREFIX_POLL_OPTION)[1];
-            Modal m = new ModalBuilder()
+            Modal m = new Discord.ModalBuilder()
                 .WithTitle("Vote Explanation")
                 .WithCustomId(EZPOLL_PREFIX_MODAL + idSelected + "_" + strpollid)
                 .AddTextInput(new TextInputBuilder().WithLabel("Explanation").WithCustomId("explanation").WithMinLength(5).WithMaxLength(255).WithRequired(true).WithStyle(TextInputStyle.Paragraph))
@@ -327,22 +348,26 @@ public class Program {
 
     private static async Task ResetCommands()
     {
-        var listVotersCommand = new SlashCommandBuilder()
+        var listVotersCommand = new Discord.SlashCommandBuilder()
                .WithName("listvoters")
                .WithDescription("List the voters for a poll")
                .AddOption("pollid", ApplicationCommandOptionType.String, description: "Which poll?", isRequired: true)
                .Build();
-        var explainVoteCommand = new SlashCommandBuilder()
+        var explainVoteCommand = new Discord.SlashCommandBuilder()
             .WithName("explainvote")
             .WithDescription("Show a voter's explanations")
             .AddOption("pollid", ApplicationCommandOptionType.String, description: "Which poll?", isRequired: true)
             .AddOption("user", ApplicationCommandOptionType.User, description: "Who", isRequired: true)
             .Build();
-        var resetCommandsCommand = new SlashCommandBuilder()
+        var resetCommandsCommand = new Discord.SlashCommandBuilder()
             .WithName("resetcommands")
             .WithDescription("Debugging command")
             .Build();
-        var createPollCommand = new SlashCommandBuilder();
+        var createPollCommand = new Discord.SlashCommandBuilder();
+        var getPollId = new MessageCommandBuilder()
+            .WithName("Copy Poll ID")
+            .WithContextTypes(InteractionContextType.Guild)
+            .Build();
         var commandPoll = createPollCommand.WithName("newpoll")
             .WithDescription("Create a new poll")
             .AddOption("title", ApplicationCommandOptionType.String, description: "Short description of poll", isRequired: true, maxLength: 250)
@@ -352,6 +377,10 @@ public class Program {
             .AddOption("threshold", ApplicationCommandOptionType.Number, description: "Specify 1-100 the percentage that the highest performing option needs to pass.", minValue: 1, maxValue: 100, isRequired: true)
             .AddOption("channel", ApplicationCommandOptionType.Channel, description: "What channel to post this poll in?", isRequired: true).Build();
 
+        await _client.BulkOverwriteGlobalApplicationCommandsAsync(new ApplicationCommandProperties[]
+        {
+            getPollId
+        });
         await _client.CreateGlobalApplicationCommandAsync(commandPoll);
         await _client.CreateGlobalApplicationCommandAsync(listVotersCommand);
         await _client.CreateGlobalApplicationCommandAsync(explainVoteCommand);
