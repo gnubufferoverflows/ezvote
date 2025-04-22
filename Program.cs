@@ -332,7 +332,7 @@ public class Program {
             var pembed = new EmbedBuilder()
                 .WithColor(Color.Red)
                 .WithTitle(title)
-                .WithDescription(description + $"\n\nThis poll requires {threshold}% majority to pass.")
+                .WithDescription(description + $"\n\nThis poll requires {threshold}% majority to pass.\nPoll owner: {command.User.Mention}")
                 .WithFooter($"{EZPOLL_POLLID_PREFIX}{guid.ToString()}")
                 .Build();
             var textChan = channel as SocketTextChannel;
