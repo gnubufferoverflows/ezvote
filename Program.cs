@@ -160,7 +160,7 @@ public class Program {
                 {
                     if (BotConfig.GetCachedConfig().PollData[trypollid].Votes.ContainsKey(usr.Id))
                     {
-                        if (BotConfig.GetCachedConfig().PollData[trypollid].PollFinalized || command.User.Id == BotConfig.GetCachedConfig().PollData[pollid].PollOwner)
+                        if (BotConfig.GetCachedConfig().PollData[trypollid].PollFinalized || command.User.Id == BotConfig.GetCachedConfig().PollData[trypollid].PollOwner)
                         {
                             StringBuilder sb = new StringBuilder($"**Voter <@{usr.Id}>**\n");
                             if (BotConfig.GetCachedConfig().PollData[trypollid].Votes[usr.Id].OptionId == -1)
@@ -169,8 +169,8 @@ public class Program {
                             }
                             else
                             {
-                                sb.AppendLine("**Option selected: **" + BotConfig.GetCachedConfig().PollData[pollid].OptionsList[BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].OptionId]);
-                                sb.AppendLine("Explanation: " + BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].Explanation);
+                                sb.AppendLine("**Option selected: **" + BotConfig.GetCachedConfig().PollData[trypollid].OptionsList[BotConfig.GetCachedConfig().PollData[trypollid].Votes[usr.Id].OptionId]);
+                                sb.AppendLine("Explanation: " + BotConfig.GetCachedConfig().PollData[trypollid].Votes[usr.Id].Explanation);
                             }
                             await command.RespondAsync(sb.ToString(), ephemeral: true);
                         }
