@@ -283,7 +283,7 @@ public class Program {
             var allowAbstain = (bool)command.Data.Options.Where(option => option.Name == "allowabstain").FirstOrDefault().Value;
             var threshold = Math.Ceiling((double) command.Data.Options.Where(option => option.Name == "threshold").FirstOrDefault().Value);
 
-            if (!(channel is SocketTextChannel) || !(channel is SocketGuildChannel))
+            if (!(channel.ChannelType == ChannelType.Text) || !(channel is SocketGuildChannel))
             {
                 await command.RespondAsync(embed: QuickEmbeds.Error("Invalid channel."), ephemeral: true);
                 return;
