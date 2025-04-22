@@ -152,35 +152,39 @@ public class Program {
     {
         if(command.CommandName == "explainvote")
         {
-            var pollid = Guid.Parse((string)command.Data.Options.Where(option => option.Name == "pollid").FirstOrDefault().Value);
-            var usr = command.Data.Options.Where(option => option.Name == "user").FirstOrDefault().Value as SocketGuildUser;
-            if (BotConfig.GetCachedConfig().PollData.ContainsKey(pollid)) {
-                if (BotConfig.GetCachedConfig().PollData[pollid].Votes.ContainsKey(usr.Id))
+            Guid trypollid;
+            if (Guid.TryParse((string)command.Data.Options.Where(option => option.Name == "pollid").FirstOrDefault().Value, out trypollid))
+            {
+                var usr = command.Data.Options.Where(option => option.Name == "user").FirstOrDefault().Value as SocketGuildUser;
+                if (BotConfig.GetCachedConfig().PollData.ContainsKey(trypollid))
                 {
-                    if(BotConfig.GetCachedConfig().PollData[pollid].PollFinalized || command.User.Id == BotConfig.GetCachedConfig().PollData[pollid].PollOwner)
+                    if (BotConfig.GetCachedConfig().PollData[trypollid].Votes.ContainsKey(usr.Id))
                     {
-                        StringBuilder sb = new StringBuilder($"**Voter <@{usr.Id}>**\n");
-                        if (BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].OptionId == -1)
+                        if (BotConfig.GetCachedConfig().PollData[trypollid].PollFinalized || command.User.Id == BotConfig.GetCachedConfig().PollData[pollid].PollOwner)
                         {
-                            sb.AppendLine("The user abstained from voting.");
+                            StringBuilder sb = new StringBuilder($"**Voter <@{usr.Id}>**\n");
+                            if (BotConfig.GetCachedConfig().PollData[trypollid].Votes[usr.Id].OptionId == -1)
+                            {
+                                sb.AppendLine("The user abstained from voting.");
+                            }
+                            else
+                            {
+                                sb.AppendLine("**Option selected: **" + BotConfig.GetCachedConfig().PollData[pollid].OptionsList[BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].OptionId]);
+                                sb.AppendLine("Explanation: " + BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].Explanation);
+                            }
+                            await command.RespondAsync(sb.ToString(), ephemeral: true);
                         }
                         else
                         {
-                            sb.AppendLine("**Option selected: **" + BotConfig.GetCachedConfig().PollData[pollid].OptionsList[BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].OptionId]);
-                            sb.AppendLine("Explanation: " + BotConfig.GetCachedConfig().PollData[pollid].Votes[usr.Id].Explanation);
+                            await command.RespondAsync(embed: QuickEmbeds.PermissionError(), ephemeral: true);
+                            return;
                         }
-                        await command.RespondAsync(sb.ToString(), ephemeral: true);
                     }
                     else
                     {
-                        await command.RespondAsync(embed: QuickEmbeds.PermissionError(), ephemeral: true);
+                        await command.RespondAsync(embed: QuickEmbeds.Error("This user didn't vote."), ephemeral: true);
                         return;
                     }
-                }
-                else
-                {
-                    await command.RespondAsync(embed: QuickEmbeds.Error("This user didn't vote."), ephemeral: true);
-                    return;
                 }
             }
             else
@@ -193,36 +197,45 @@ public class Program {
         {
             try
             {
-                var pollid = Guid.Parse((string) command.Data.Options.Where(option => option.Name == "pollid").FirstOrDefault().Value);
-                if (BotConfig.GetCachedConfig().PollData.ContainsKey(pollid))
+                Guid trypollid;
+                if (Guid.TryParse((string)command.Data.Options.Where(option => option.Name == "pollid").FirstOrDefault().Value, out trypollid))
                 {
-                    if (BotConfig.GetCachedConfig().PollData[pollid].Votes.Count > 0)
+
+                    if (BotConfig.GetCachedConfig().PollData.ContainsKey(trypollid))
                     {
-                        StringBuilder sb = new StringBuilder("**Voters: **\n");
-                        foreach(KeyValuePair<ulong, Vote> keys in BotConfig.GetCachedConfig().PollData[pollid].Votes)
+                        if (BotConfig.GetCachedConfig().PollData[trypollid].Votes.Count > 0)
                         {
-                            sb.AppendLine($"<@{keys.Key}>");
+                            StringBuilder sb = new StringBuilder("**Voters: **\n");
+                            foreach (KeyValuePair<ulong, Vote> keys in BotConfig.GetCachedConfig().PollData[trypollid].Votes)
+                            {
+                                sb.AppendLine($"<@{keys.Key}>");
+                            }
+                            if (sb.Length > 1000)
+                            {
+                                await command.RespondAsync(embed: QuickEmbeds.Error("The voter list is too large."), ephemeral: true);
+                                return;
+                            }
+                            await command.RespondAsync(sb.ToString(), ephemeral: true);
                         }
-                        if(sb.Length > 1000)
+                        else
                         {
-                            await command.RespondAsync(embed: QuickEmbeds.Error("The voter list is too large."), ephemeral: true);
+                            await command.RespondAsync(embed: QuickEmbeds.Error("Nobody has voted yet."), ephemeral: true);
                             return;
                         }
-                        await command.RespondAsync(sb.ToString(), ephemeral: true);
                     }
                     else
                     {
-                        await command.RespondAsync(embed: QuickEmbeds.Error("Nobody has voted yet."), ephemeral: true);
+                        await command.RespondAsync(embed: QuickEmbeds.Error("Poll could not be found."), ephemeral: true);
                         return;
                     }
                 }
                 else
                 {
-                    await command.RespondAsync(embed: QuickEmbeds.Error("Poll could not be found."), ephemeral: true);
+                    await command.RespondAsync(embed: QuickEmbeds.Error("Invalid poll id."));
                     return;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await command.RespondAsync(embed: QuickEmbeds.Error(ex.Message), ephemeral: true);
             }
