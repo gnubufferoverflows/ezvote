@@ -366,6 +366,7 @@ public class Program {
         {
             await ResetCommands();
         }
+        await _client.SetCustomStatusAsync("I love democracy");
     }
 
     private static async Task Log(LogMessage message)
