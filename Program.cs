@@ -222,7 +222,7 @@ public class Program {
                     return;
                 }
             }
-            catch(FormatException ex)
+            catch(Exception ex)
             {
                 await command.RespondAsync(embed: QuickEmbeds.Error(ex.Message), ephemeral: true);
             }
