@@ -231,7 +231,7 @@ public class Program {
                 }
                 else
                 {
-                    await command.RespondAsync(embed: QuickEmbeds.Error("Invalid poll id."));
+                    await command.RespondAsync(embed: QuickEmbeds.Error("Invalid poll id."), ephemeral: true);
                     return;
                 }
             }
